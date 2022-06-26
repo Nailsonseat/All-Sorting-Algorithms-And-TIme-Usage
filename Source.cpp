@@ -6,6 +6,63 @@
 using namespace std;
 using namespace std::chrono;
 
+class graph {
+	int size;
+	vector <int>* adj;
+	int* indegree;
+
+	void toposortuntil(int i, bool* visited, vector <int>& stack) {
+		visited[i] = 1;
+		for (int j(0); j < adj[i].size(); j++)
+			if (!visited[adj[i][j]])
+				toposortuntil(adj[i][j], visited, stack);
+		stack.push_back(i);
+	}
+
+public:
+	graph(int x) {
+		size = x; adj = new vector <int>[size]; indegree = new int[size]();
+	}
+
+	void addEdge(int x, int y) {
+		adj[x].push_back(y); indegree[y]++;
+	}
+
+	void toposort() {
+		bool* visited(new bool[size]());
+		vector <int> stack;
+		for (int i(0); i < size; i++) {
+			if (!visited[i])
+				toposortuntil(i, visited, stack);
+		}
+
+		while (!stack.empty()) {
+			cout << stack[stack.size()-1] << ' ';
+			stack.pop_back();
+		}
+	}
+
+	void ktoposort() {
+		int cnt(0);
+		vector<int>que, order;
+		for (int i(0); i < size; i++)
+			if(!indegree[i])
+				que.push_back(i);
+		while (!que.empty()) {
+			int i(que[0]);
+			que.erase(que.begin());
+			order.push_back(i);
+			for (int j(0); j < adj[i].size(); j++) {
+				if (!(--indegree[adj[i][j]]))
+					que.push_back(adj[i][j]);
+			}
+		}
+		for (auto val : order) {
+			cout << val << ' ';
+		}
+	}
+};
+
 void merge(int* arr, int lb, int mid, int ub) {
 	int i(lb), j(mid + 1), k(lb), * ret(new int[ub - lb + 1]);
 	while (i <= mid && j <= ub) {
@@ -206,4 +263,18 @@ int main() {
 		cout << " microseconds";
 	}
 	cout << endl << endl;
+
+	graph g(6);
+	g.addEdge(5, 2);
+	g.addEdge(5, 0);
+	g.addEdge(4, 0);
+	g.addEdge(4, 1);
+	g.addEdge(2, 3);
+	g.addEdge(3, 1);
+
+	cout << "Following is a Topological Sort of the given "
+		"graph \n";
+
+	// Function Call
+	g.ktoposort();
 }
